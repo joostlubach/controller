@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Decorator-based controllers for Express",
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
     "@types/express": "^4.11.0",
     "@types/lodash": "^4.14.98"
   },
@@ -11,7 +10,7 @@
     "express": "^4.16.2"
   },
   "dependencies": {
-    "chalk": "^2.4.1",
+    "chalk": "^3.0.0",
     "lodash": "^4.17.21"
   }
 }
