@@ -2,6 +2,23 @@
   "name": "controller",
   "version": "1.0.0",
   "description": "Decorator-based controllers for Express",
+  "scripts": {
+    "build": "(pnpm build:prepare && pnpm build:tsc && pnpm build:tsc-alias && pnpm build:copy && pnpm build:rsync); pnpm build:cleanup",
+    "build:prepare": "test -x .build && rm -rf .build; mkdir -p .build",
+    "build:tsc": "tsc -p tsconfig.json --outDir .build",
+    "build:tsc-alias": "tsc-alias -p tsconfig.json --outDir .build",
+    "build:copy": "copyfiles -u 1 src/**/*.yml src/**/*.css .build",
+    "build:rsync": "rsync -uvaz --delete .build/ dist/",
+    "build:cleanup": "rm -rf .build",
+    "clean": "rimraf dist",
+    "test": "NODE_ENV=test jest"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "devDependencies": {
     "@types/express": "^4.11.0",
     "@types/lodash": "^4.14.98"

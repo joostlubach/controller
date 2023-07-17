@@ -77,7 +77,7 @@ function createAction(Controller: ControllerConstructor, action: Action, middlew
   }
 }
 
-function convertParams(action: Action, params: AnyObject) {
+function convertParams(action: Action, params: Record<string, any>) {
   return Object.entries(params).map(([name, value]) => {
     const converter = action.paramConverters[name]
     if (converter == null) {

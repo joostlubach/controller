@@ -1,5 +1,5 @@
-import { Method, ParamConverterMap, ControllerConstructor, ErrorHandler } from '../types'
 import registry from '../registry'
+import { ControllerConstructor, ErrorHandler, Method, ParamConverterMap } from '../types'
 
 export const get   = actionDecorator('get')
 export const post  = actionDecorator('post')
@@ -32,6 +32,6 @@ function resolveErrorHandlers(Controller: ControllerConstructor): ErrorHandler[]
   return [...errorHandlers, ...entry?.errorHandlers ?? []]
 }
 
-function getSuperConstructor(Constructor: AnyConstructor) {
+function getSuperConstructor(Constructor: Function) {
   return Constructor.prototype?.__proto__?.constructor
 }
