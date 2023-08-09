@@ -1,4 +1,4 @@
-import { ControllerConstructor, Action, Middleware, ErrorHandler } from './types'
+import { Action, ControllerConstructor, ErrorHandler, Middleware } from './types'
 
 export interface RegistryEntry {
   bases?:        string[]
@@ -7,19 +7,21 @@ export interface RegistryEntry {
   errorHandlers: ErrorHandler[]
 }
 
-const registry: WeakMap<ControllerConstructor, RegistryEntry> = new WeakMap()
+const REGISTRY: WeakMap<ControllerConstructor, RegistryEntry> = new WeakMap()
 
-export default {
+const registry = {
   get(controller: ControllerConstructor): RegistryEntry {
     let entry = registry.get(controller)
     if (entry == null) {
       entry = defaultEntry()
-      registry.set(controller, entry)
+      REGISTRY.set(controller, entry)
     }
 
     return entry
   },
 }
+
+export default registry
 
 function defaultEntry(): RegistryEntry {
   return {
