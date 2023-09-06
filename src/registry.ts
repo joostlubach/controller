@@ -11,7 +11,7 @@ const REGISTRY: WeakMap<ControllerConstructor, RegistryEntry> = new WeakMap()
 
 const registry = {
   get(controller: ControllerConstructor): RegistryEntry {
-    let entry = registry.get(controller)
+    let entry = REGISTRY.get(controller)
     if (entry == null) {
       entry = defaultEntry()
       REGISTRY.set(controller, entry)
