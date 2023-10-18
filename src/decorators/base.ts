@@ -1,10 +1,9 @@
+import { Constructor, TypedClassDecorator } from 'ytil'
 import registry from '../registry'
-import { ControllerConstructor } from '../types'
 
-export function base(...bases: string[]) {
-  return (target: any) => {
-    const Controller = target as ControllerConstructor<any>
-    const entry = registry.get(Controller)
+export function base<C extends Constructor<any>>(...bases: string[]): TypedClassDecorator<C> {
+  return (target) => {
+    const entry = registry.get(target)
     ;(entry.bases ??= []).push(...bases)
   }
 }

@@ -1,26 +1,34 @@
 import chalk from 'chalk'
-import { Express, NextFunction, Request, Response, Router } from 'express'
-import { isArray } from 'lodash'
-import { objectValues } from 'ytil'
+import { Application, NextFunction, Request, Response, Router } from 'express'
+import { isArray, isFunction } from 'lodash'
+import { Constructor, objectValues } from 'ytil'
 import config from './config'
 import HTTPError from './HTTPError'
 import registry from './registry'
-import { Action, ControllerConstructor, Middleware, MountOptions } from './types'
+import { Action, ControllerFactory, Middleware, MountOptions } from './types'
 
-interface ControllerMap {
-  [name: string]: ControllerConstructor<any>
-}
-type ControllerArray = ControllerConstructor<any>[]
+/**
+ * Mounts a set of controllers onto an Express app or router.
+ *
+ * @param app The application or router to mount the controllers on.
+ * @param controllers The controllers to mount.
+ * @param options Mount options.
+ */
+export default function mount(app: Application | Router, controllers: Constructor<any>[], options: MountOptions & {factory: ControllerFactory<any>}): void
+export default function mount(app: Application | Router, controllers: Constructor<any, [Request, Response]>[], options?: MountOptions): void
 
-export default function mount(app: Express, controllers: ControllerConstructor<any>[], options: MountOptions = {}): void
-export default function mount(app: Express, controllers: ControllerMap | ControllerArray, options: MountOptions = {}) {
+export default function mount(app: Application | Router, controllers: Constructor<any>[], options: MountOptions = {}) {
   const array = isArray(controllers) ? controllers : objectValues(controllers)
+  const router = Router()
+
   for (const Controller of array) {
-    mountController(app, Controller, options)
+    mountController(router, Controller, options)
   }
+
+  app.use(router)
 }
 
-function mountController(app: Express, Controller: ControllerConstructor<any>, options: MountOptions) {
+function mountController(router: Router, Controller: Constructor<any>, options: MountOptions) {
   const entry = registry.get(Controller)
 
   config.logger.info(chalk`-> Mounting controller {yellow ${Controller.name}}`)
@@ -28,16 +36,16 @@ function mountController(app: Express, Controller: ControllerConstructor<any>, o
 
   for (const base of bases) {
     for (const action of entry.actions) {
-      mountAction(app, Controller, action, entry.middleware, base, options)
+      mountAction(router, Controller, action, entry.middleware, base, options)
     }
   }
 }
 
-function mountAction(
-  app:        Express,
-  Controller: ControllerConstructor<any>,
+function mountAction<C>(
+  router:     Router,
+  Controller: Constructor<C>,
   action:     Action,
-  middleware: Middleware[],
+  middleware: Middleware<C>[],
   base:       string | null,
   options:    MountOptions
 ) {
@@ -52,23 +60,23 @@ function mountAction(
   config.logger.info(chalk`    • Mounting {yellow ${method.toUpperCase()} ${fullPath}} => {blue ${Controller.name}::${name}}`)
 
   const boundAction = bindAction(Controller, action, middleware, options)
-  if (app instanceof Router) {
-    app[method](fullPath, boundAction)
-  } else {
-    app[method](fullPath, boundAction)
-  }
+  router[method](fullPath, boundAction)
 }
 
-function bindAction(Controller: ControllerConstructor<any>, action: Action, middleware: Middleware[], options: MountOptions) {
+function bindAction<C>(Controller: Constructor<C>, action: Action, middleware: Middleware<C>[], options: MountOptions) {
   return async (request: Request, response: Response, next: NextFunction) => {
     const controller = options.factory != null
       ? options.factory(Controller, request, response)
-      :  new Controller(request, response)
+      : new Controller(request, response)
 
-    const method = controller[action.name]
+    const method = (controller as any)[action.name]
+    if (!isFunction(method)) {
+      throw new Error(`Controller ${Controller.name} does not have a method named ${action.name}`)
+    }
+
     try {
       if (middleware.length > 0) {
-        await callMiddlewareChain(middleware, action.name, request, response)
+        await callMiddlewareChain(middleware, action.name, controller, request, response)
       }
 
       const params = convertParams(action, request.params)
@@ -115,7 +123,7 @@ function wrapInHTTPError(error: Error, action: Action): HTTPError {
   return HTTPError.createFromError(error, 500)
 }
 
-function callMiddlewareChain(middleware: Middleware[], action: string, request: Request, response: Response) {
+function callMiddlewareChain<C>(middleware: Middleware<C>[], action: string, controller: C, request: Request, response: Response) {
   const todo = [...middleware]
 
   return new Promise<void>((resolve, reject) => {
@@ -141,7 +149,7 @@ function callMiddlewareChain(middleware: Middleware[], action: string, request: 
         return
       }
 
-      func(request, response, nextHandler)
+      func(controller, request, response, nextHandler)
     }
 
     nextHandler()

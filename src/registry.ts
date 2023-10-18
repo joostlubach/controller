@@ -1,16 +1,17 @@
-import { Action, ControllerConstructor, ErrorHandler, Middleware } from './types'
+import { Constructor } from 'ytil'
+import { Action, ErrorHandler, Middleware } from './types'
 
-export interface RegistryEntry {
+export interface RegistryEntry<C> {
   bases?:        string[]
   actions:       Action[]
-  middleware:    Middleware[]
+  middleware:    Middleware<C>[]
   errorHandlers: ErrorHandler[]
 }
 
-const REGISTRY: WeakMap<ControllerConstructor<any>, RegistryEntry> = new WeakMap()
+const REGISTRY = new WeakMap<Constructor<any>, RegistryEntry<any>>()
 
 const registry = {
-  get(controller: ControllerConstructor<any>): RegistryEntry {
+  get<C>(controller: Constructor<C>): RegistryEntry<C> {
     let entry = REGISTRY.get(controller)
     if (entry == null) {
       entry = defaultEntry()
@@ -23,7 +24,7 @@ const registry = {
 
 export default registry
 
-function defaultEntry(): RegistryEntry {
+function defaultEntry(): RegistryEntry<any> {
   return {
     actions:       [],
     middleware:    [],

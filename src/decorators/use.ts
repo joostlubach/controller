@@ -1,9 +1,9 @@
+import { Constructor, TypedClassDecorator } from 'ytil'
 import registry from '../registry'
-import { ControllerConstructor, MiddlewareFunction, MiddlewareOptions } from '../types'
+import { MiddlewareFunction, MiddlewareOptions } from '../types'
 
-export function use(func: MiddlewareFunction, options: MiddlewareOptions = {}) {
-  return (target: any) => {
-    const Controller = target as ControllerConstructor<any>
+export function use<C extends Constructor<any>>(func: MiddlewareFunction<InstanceType<C>>, options: MiddlewareOptions = {}): TypedClassDecorator<C> {
+  return Controller => {
     const entry = registry.get(Controller)
     entry.middleware.push({func, options})
   }

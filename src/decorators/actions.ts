@@ -1,5 +1,6 @@
+import { Constructor } from 'ytil'
 import registry from '../registry'
-import { ControllerConstructor, ErrorHandler, Method, ParamConverterMap } from '../types'
+import { ErrorHandler, Method, ParamConverterMap } from '../types'
 
 export const get   = actionDecorator('get')
 export const post  = actionDecorator('post')
@@ -24,7 +25,7 @@ function actionDecorator(method: Method) {
   }
 }
 
-function resolveErrorHandlers(Controller: ControllerConstructor<any>): ErrorHandler[] {
+function resolveErrorHandlers(Controller: Constructor<any>): ErrorHandler[] {
   const Super         = getSuperConstructor(Controller)
   const errorHandlers = Super == null ? [] : resolveErrorHandlers(Super)
   const entry         = registry.get(Controller)

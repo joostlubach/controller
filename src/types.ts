@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from 'express'
 import { Constructor } from 'ytil'
 
-export type ControllerFactory<C>     = (request: Request, response: Response) => C
-export type ControllerConstructor<C> = new (request: Request, response: Response) => C
-
 export interface MountOptions {
-  factory?: <C>(Controller: ControllerConstructor<C>, request: Request, response: Response) => C
+
+  /**
+   * A factory function that will be used to create controller instances. If not specified, your constructors must accept
+   * a `Request` and `Response` as their only two arguments.
+   */
+  factory?: ControllerFactory<any>
+
 }
+
+export type ControllerFactory<C> = (Controller: Constructor<C>, request: Request, response: Response) => C
 
 export interface Action {
   name:            string
@@ -24,12 +29,13 @@ export interface ErrorHandler<E extends Error = any> {
   toJSON?:       (error: E) => any
 }
 
-export interface Middleware {
-  func:    MiddlewareFunction
+export interface Middleware<C> {
+  func:    MiddlewareFunction<C>
   options: MiddlewareOptions
 }
 
-export type MiddlewareFunction = (
+export type MiddlewareFunction<C> = (
+  controller: C,
   request: Request,
   response: Response,
   next: NextFunction
