@@ -24,7 +24,7 @@ function actionDecorator(method: Method) {
   }
 }
 
-function resolveErrorHandlers(Controller: ControllerConstructor): ErrorHandler[] {
+function resolveErrorHandlers(Controller: ControllerConstructor<any>): ErrorHandler[] {
   const Super         = getSuperConstructor(Controller)
   const errorHandlers = Super == null ? [] : resolveErrorHandlers(Super)
   const entry         = registry.get(Controller)

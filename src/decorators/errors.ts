@@ -1,5 +1,5 @@
+import { Constructor } from 'ytil'
 import registry from '../registry'
-import { Constructor } from '../types'
 
 export function handle<E extends Error>(ErrorClass: Constructor<E>, defaultStatus: number, toJSON?: (error: E) => any) {
   return (...args: any[]) => {

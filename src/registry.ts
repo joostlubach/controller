@@ -7,10 +7,10 @@ export interface RegistryEntry {
   errorHandlers: ErrorHandler[]
 }
 
-const REGISTRY: WeakMap<ControllerConstructor, RegistryEntry> = new WeakMap()
+const REGISTRY: WeakMap<ControllerConstructor<any>, RegistryEntry> = new WeakMap()
 
 const registry = {
-  get(controller: ControllerConstructor): RegistryEntry {
+  get(controller: ControllerConstructor<any>): RegistryEntry {
     let entry = REGISTRY.get(controller)
     if (entry == null) {
       entry = defaultEntry()

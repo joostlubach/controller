@@ -1,27 +1,26 @@
 import chalk from 'chalk'
-import { Application, NextFunction, Request, Response, Router } from 'express'
-import { isFunction, isPlainObject } from 'lodash'
+import { Express, NextFunction, Request, Response, Router } from 'express'
+import { isArray } from 'lodash'
+import { objectValues } from 'ytil'
 import config from './config'
 import HTTPError from './HTTPError'
 import registry from './registry'
-import { Action, ControllerConstructor, Middleware } from './types'
+import { Action, ControllerConstructor, Middleware, MountOptions } from './types'
 
 interface ControllerMap {
-  [name: string]: ControllerConstructor
+  [name: string]: ControllerConstructor<any>
 }
-type ControllerArray = ControllerConstructor[]
+type ControllerArray = ControllerConstructor<any>[]
 
-export default function mount(app: Application | Router, controllers: ControllerMap | ControllerArray) {
-  const controllerArray = isPlainObject(controllers)
-    ? Object.values(controllers as ControllerMap)
-    : controllers as ControllerArray
-
-  for (const Controller of controllerArray) {
-    mountController(app, Controller)
+export default function mount(app: Express, controllers: ControllerConstructor<any>[], options: MountOptions = {}): void
+export default function mount(app: Express, controllers: ControllerMap | ControllerArray, options: MountOptions = {}) {
+  const array = isArray(controllers) ? controllers : objectValues(controllers)
+  for (const Controller of array) {
+    mountController(app, Controller, options)
   }
 }
 
-function mountController(app: Application | Router, Controller: ControllerConstructor) {
+function mountController(app: Express, Controller: ControllerConstructor<any>, options: MountOptions) {
   const entry = registry.get(Controller)
 
   config.logger.info(chalk`-> Mounting controller {yellow ${Controller.name}}`)
@@ -29,22 +28,18 @@ function mountController(app: Application | Router, Controller: ControllerConstr
 
   for (const base of bases) {
     for (const action of entry.actions) {
-      mountAction(app, Controller, action, entry.middleware, base)
+      mountAction(app, Controller, action, entry.middleware, base, options)
     }
-  }
-
-  // Allow controllers a custom mount function.
-  if (isFunction((Controller as any).mount)) {
-    (Controller as any).mount(app)
   }
 }
 
 function mountAction(
-  app:        Application | Router,
-  Controller: ControllerConstructor,
+  app:        Express,
+  Controller: ControllerConstructor<any>,
   action:     Action,
   middleware: Middleware[],
-  base:       string | null
+  base:       string | null,
+  options:    MountOptions
 ) {
   const {name, path, method} = action
 
@@ -55,21 +50,29 @@ function mountAction(
   fullPath = fullPath.replace(/\/{2,}/g, '/')
 
   config.logger.info(chalk`    • Mounting {yellow ${method.toUpperCase()} ${fullPath}} => {blue ${Controller.name}::${name}}`)
-  ;(app as Application)[method](fullPath, createAction(Controller, action, middleware))
+
+  const boundAction = bindAction(Controller, action, middleware, options)
+  if (app instanceof Router) {
+    app[method](fullPath, boundAction)
+  } else {
+    app[method](fullPath, boundAction)
+  }
 }
 
-function createAction(Controller: ControllerConstructor, action: Action, middleware: Middleware[]) {
+function bindAction(Controller: ControllerConstructor<any>, action: Action, middleware: Middleware[], options: MountOptions) {
   return async (request: Request, response: Response, next: NextFunction) => {
-    const controller = new Controller(request, response)
-    const actionFn   = controller[action.name]
+    const controller = options.factory != null
+      ? options.factory(Controller, request, response)
+      :  new Controller(request, response)
 
+    const method = controller[action.name]
     try {
       if (middleware.length > 0) {
         await callMiddlewareChain(middleware, action.name, request, response)
       }
 
       const params = convertParams(action, request.params)
-      await actionFn.call(controller, ...params)
+      await method.call(controller, ...params)
       response.end()
     } catch (error: any) {
       next(wrapInHTTPError(error, action))
