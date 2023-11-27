@@ -1,12 +1,12 @@
-import { Constructor } from 'ytil'
+import { Constructor, superConstructor } from 'ytil'
 import registry from '../registry'
 import { ErrorHandler, Method, ParamConverterMap } from '../types'
 
-export const get   = actionDecorator('get')
-export const post  = actionDecorator('post')
-export const put   = actionDecorator('put')
+export const get = actionDecorator('get')
+export const post = actionDecorator('post')
+export const put = actionDecorator('put')
 export const patch = actionDecorator('patch')
-export const del   = actionDecorator('delete')
+export const del = actionDecorator('delete')
 
 function actionDecorator(method: Method) {
   return (path: string, paramConverters: ParamConverterMap = {}) => {
@@ -15,7 +15,7 @@ function actionDecorator(method: Method) {
       const entry = registry.get(Controller)
 
       entry.actions.push({
-        name: key,
+        name:          key,
         path,
         method,
         paramConverters,
@@ -26,13 +26,9 @@ function actionDecorator(method: Method) {
 }
 
 function resolveErrorHandlers(Controller: Constructor<any>): ErrorHandler[] {
-  const Super         = getSuperConstructor(Controller)
+  const Super = superConstructor(Controller)
   const errorHandlers = Super == null ? [] : resolveErrorHandlers(Super)
-  const entry         = registry.get(Controller)
+  const entry = registry.get(Controller)
 
   return [...errorHandlers, ...entry?.errorHandlers ?? []]
-}
-
-function getSuperConstructor(Constructor: Function) {
-  return Constructor.prototype?.__proto__?.constructor
 }

@@ -5,7 +5,7 @@ export default class HTTPError extends Error {
     public readonly status: number,
     message: string,
     public readonly extra: any = {},
-    public readonly underlyingError: Error | null = null
+    public readonly underlyingError: Error | null = null,
   ) {
     super(message)
 
@@ -14,7 +14,7 @@ export default class HTTPError extends Error {
 
   public static createFromError(error: Error, defaultStatus: number) {
     const status = (error as any).status ?? defaultStatus
-    const json   = isFunction((error as any).toJSON) ? (error as any).toJSON() : {}
+    const json = isFunction((error as any).toJSON) ? (error as any).toJSON() : {}
 
     return new HTTPError(status, error.message, json, error)
   }

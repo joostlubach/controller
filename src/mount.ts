@@ -47,13 +47,15 @@ function mountAction<C>(
   action:     Action,
   middleware: Middleware<C>[],
   base:       string | null,
-  options:    MountOptions
+  options:    MountOptions,
 ) {
   const {name, path, method} = action
 
-  let fullPath = path.startsWith('/') ? path :
-    base == null ? `/${path}` :
-    `/${base}/${path}`
+  let fullPath = path.startsWith('/')
+    ? path
+    : base == null
+      ? `/${path}`
+      : `/${base}/${path}`
 
   fullPath = fullPath.replace(/\/{2,}/g, '/')
 
