@@ -17,7 +17,7 @@ import { Action, ControllerFactory, Middleware, MountOptions } from './types'
 export default function mount(app: Application | Router, controllers: Constructor<any>[], options: MountOptions & {factory: ControllerFactory<any>}): void
 export default function mount(app: Application | Router, controllers: Constructor<any, [Request, Response]>[], options?: MountOptions): void
 
-export default function mount(app: Application | Router, controllers: Constructor<any>[], options: MountOptions = {}) {
+export default function mount(app: Application | Router, controllers: Constructor<any, any[]>[], options: MountOptions = {}) {
   const array = isArray(controllers) ? controllers : objectValues(controllers)
   const router = Router()
 
