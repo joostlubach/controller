@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import { Application, NextFunction, Request, Response, Router } from 'express'
 import { isArray, isFunction } from 'lodash'
 import { Constructor, objectValues } from 'ytil'
+
 import config from './config'
 import HTTPError from './HTTPError'
 import registry from './registry'

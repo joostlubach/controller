@@ -1,4 +1,5 @@
 import { Constructor, TypedClassDecorator } from 'ytil'
+
 import registry from '../registry'
 import { MiddlewareFunction, MiddlewareOptions } from '../types'
 

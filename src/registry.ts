@@ -1,4 +1,5 @@
 import { Constructor } from 'ytil'
+
 import { Action, ErrorHandler, Middleware } from './types'
 
 export interface RegistryEntry<C> {

@@ -1,4 +1,5 @@
 import { isFunction } from 'lodash'
+
 export default class HTTPError extends Error {
 
   constructor(
