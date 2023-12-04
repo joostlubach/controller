@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { Application, NextFunction, Request, Response, Router } from 'express'
-import { isArray, isFunction } from 'lodash'
-import { Constructor, objectValues } from 'ytil'
+import { isFunction } from 'lodash'
+import { Constructor } from 'ytil'
 
 import config from './config'
 import HTTPError from './HTTPError'
@@ -19,10 +19,8 @@ export default function mount(app: Application | Router, controllers: Constructo
 export default function mount(app: Application | Router, controllers: Constructor<any, [Request, Response]>[], options?: MountOptions): void
 
 export default function mount(app: Application | Router, controllers: Constructor<any, any[]>[], options: MountOptions = {}) {
-  const array = isArray(controllers) ? controllers : objectValues(controllers)
   const router = Router()
-
-  for (const Controller of array) {
+  for (const Controller of controllers) {
     mountController(router, Controller, options)
   }
 
