@@ -6,11 +6,12 @@ export default class HTTPError extends Error {
     public readonly status: number,
     message: string,
     public readonly extra: any = {},
-    public readonly underlyingError: Error | null = null,
+    public readonly cause: Error | null = null,
   ) {
-    super(message)
+    super(message, {cause})
 
     Object.setPrototypeOf(this, HTTPError.prototype)
+    Error.captureStackTrace(this, HTTPError)
   }
 
   public static createFromError(error: Error, defaultStatus: number) {
@@ -27,8 +28,8 @@ export default class HTTPError extends Error {
       ...this.extra,
     }
 
-    if (verbose && this.underlyingError?.stack != null) {
-      json.stack = cleanStack(this.underlyingError.stack)
+    if (verbose && this.cause?.stack != null) {
+      json.stack = cleanStack(this.cause.stack)
     }
 
     return json
