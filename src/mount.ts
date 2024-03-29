@@ -3,10 +3,10 @@ import { Application, NextFunction, Request, Response, Router } from 'express'
 import { isFunction } from 'lodash'
 import { Constructor } from 'ytil'
 
-import config from './config'
-import HTTPError from './HTTPError'
-import registry from './registry'
-import { Action, ControllerFactory, Middleware, MountOptions } from './types'
+import HTTPError from './HTTPError.js'
+import config from './config.js'
+import registry from './registry.js'
+import { Action, ControllerFactory, Middleware, MountOptions } from './types.js'
 
 /**
  * Mounts a set of controllers onto an Express app or router.

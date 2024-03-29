@@ -1,7 +1,7 @@
 import { Constructor, superConstructor } from 'ytil'
 
-import registry from '../registry'
-import { ErrorHandler, Method, ParamConverterMap } from '../types'
+import registry from '../registry.js'
+import { ErrorHandler, Method, ParamConverterMap } from '../types.js'
 
 export const get = actionDecorator('get')
 export const post = actionDecorator('post')
