@@ -1,6 +1,6 @@
 import { Constructor, TypedClassDecorator } from 'ytil'
 
-import registry from '../registry.js'
+import registry from '../registry'
 
 export function base<C extends Constructor<any>>(...bases: string[]): TypedClassDecorator<C> {
   return (target) => {

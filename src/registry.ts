@@ -1,6 +1,6 @@
 import { Constructor } from 'ytil'
 
-import { Action, ErrorHandler, Middleware } from './types.js'
+import { Action, ErrorHandler, Middleware } from './types'
 
 export interface RegistryEntry<C> {
   bases?:        string[]
