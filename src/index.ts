@@ -1,3 +1,3 @@
-export { default as HTTPError } from './HTTPError.js'
-export { configure } from './config.js'
-export { default as mount } from './mount.js'
+export { default as HTTPError } from './HTTPError'
+export { configure } from './config'
+export { default as mount } from './mount'
