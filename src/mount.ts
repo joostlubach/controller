@@ -56,7 +56,9 @@ function mountAction<C>(
       ? `/${path}`
       : `/${base}/${path}`
 
-  fullPath = fullPath.replace(/\/{2,}/g, '/')
+  fullPath = fullPath
+    .replace(/\/{2,}/g, '/')
+    .replace(/\/$/g, '')
 
   config.logger.info(chalk`    • Mounting {yellow ${method.toUpperCase()} ${fullPath}} => {blue ${Controller.name}::${name}}`)
 
