@@ -7,11 +7,15 @@ export interface MountOptions {
    * A factory function that will be used to create controller instances. If not specified, your constructors must accept
    * a `Request` and `Response` as their only two arguments.
    */
-  factory?: ControllerFactory<any>
+  factory?: ControllerFactory<any, any[]>
 
 }
 
-export type ControllerFactory<C> = (Controller: Constructor<C>, request: Request, response: Response) => C
+export type ControllerConstructor<C, A extends any[] = []> = StatefulControllerConstructor<C, A> | StatelessControllerConstructor<C, A>
+export type StatefulControllerConstructor<C, A extends any[] = []> = Constructor<C, [...A, Request, Response]>
+export type StatelessControllerConstructor<C, A extends any[] = []> = Constructor<C, [...A]>
+
+export type ControllerFactory<C, A extends any[]> = (Controller: ControllerConstructor<C, A>, request: Request, response: Response) => C
 
 export interface Action {
   name:            string

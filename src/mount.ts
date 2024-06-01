@@ -6,7 +6,7 @@ import { Constructor } from 'ytil'
 import HTTPError from './HTTPError'
 import config from './config'
 import registry from './registry'
-import { Action, ControllerFactory, Middleware, MountOptions } from './types'
+import { Action, ControllerConstructor, Middleware, MountOptions } from './types'
 
 /**
  * Mounts a set of controllers onto an Express app or router.
@@ -15,10 +15,11 @@ import { Action, ControllerFactory, Middleware, MountOptions } from './types'
  * @param controllers The controllers to mount.
  * @param options Mount options.
  */
-export default function mount(app: Application | Router, controllers: Constructor<any>[], options: MountOptions & {factory: ControllerFactory<any>}): void
-export default function mount(app: Application | Router, controllers: Constructor<any, [Request, Response]>[], options?: MountOptions): void
-
-export default function mount(app: Application | Router, controllers: Constructor<any, any[]>[], options: MountOptions = {}) {
+export default function mount<A extends any[] = []>(
+  app: Application | Router,
+  controllers: ControllerConstructor<any, A>[],
+  options: MountOptions
+) {
   const router = Router()
   for (const Controller of controllers) {
     mountController(router, Controller, options)
