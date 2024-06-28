@@ -1,3 +1,4 @@
+import { ToJSONOptions } from 'json-error'
 import { isFunction } from 'lodash'
 
 export default class HTTPError extends Error {
@@ -21,15 +22,26 @@ export default class HTTPError extends Error {
     return new HTTPError(status, error.message, json, error)
   }
 
-  public toJSON(verbose: boolean) {
+  public toJSON(options: ToJSONOptions<HTTPError> = {}) {
     const json = {
       status:  this.status,
       message: this.message,
       ...this.extra,
     }
 
-    if (verbose && this.cause?.stack != null) {
-      json.stack = cleanStack(this.cause.stack)
+    const {
+      mask = 'auto',
+      maskForError = isClientError,
+    } = options
+
+    const shouldMask = mask === 'always' ? true : mask === 'never' ? false : maskForError(this)
+
+    if (!shouldMask) {
+      if (this.cause?.stack != null) {
+        json.stack = parseStack(this.cause.stack)
+      } else {
+        json.stack = parseStack(this.stack)
+      }
     }
 
     return json
@@ -37,7 +49,17 @@ export default class HTTPError extends Error {
 
 }
 
-function cleanStack(stack: string) {
+export function isClientError(error: HTTPError) {
+  return error.status < 500
+}
+
+export function isServerError(error: HTTPError) {
+  return error.status > 500
+}
+
+function parseStack(stack: string | undefined) {
+  if (stack == null) { return }
+
   return stack
     .split('\n')
     .slice(1)
