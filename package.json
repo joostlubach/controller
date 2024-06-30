@@ -12,15 +12,9 @@
     "check": "tsc -p . --noEmit",
     "test": "NODE_ENV=test jest"
   },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
-    }
+    ".": "./src/index.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -36,8 +30,8 @@
   "dependencies": {
     "chalk": "^3.0.0",
     "express": "^4.19.2",
-    "json-error": "workspace:^",
+    "json-error": "workspace:*",
     "lodash": "^4.17.21",
-    "ytil": "workspace:^"
+    "ytil": "workspace:*"
   }
 }
