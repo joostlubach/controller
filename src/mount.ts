@@ -1,7 +1,6 @@
 import chalk from 'chalk'
 import { Application, NextFunction, Request, Response, Router } from 'express'
-import { isFunction } from 'lodash'
-import { Constructor } from 'ytil'
+import { Constructor, isFunction } from 'ytil'
 
 import HTTPError from './HTTPError'
 import config from './config'

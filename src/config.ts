@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { isFunction } from 'lodash'
+import { isFunction } from 'ytil'
 
 export interface Config {
   logger: Logger

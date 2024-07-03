@@ -1,5 +1,5 @@
 import { ToJSONOptions } from 'json-error'
-import { isFunction } from 'lodash'
+import { isFunction } from 'ytil'
 
 export default class HTTPError extends Error {
 
