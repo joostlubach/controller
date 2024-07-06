@@ -39,5 +39,6 @@
     "json-error": "workspace:^",
     "lodash": "^4.17.21",
     "ytil": "workspace:^"
-  }
+  },
+  "packageManager": "pnpm@8.4.0"
 }
